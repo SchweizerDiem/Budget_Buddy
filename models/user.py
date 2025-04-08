@@ -8,11 +8,22 @@ class user:
         self.transactions = []
 
 
-    # NOTE: TRANSACTIONS
     def add_category(self, name_of_category: str):
         self.category.append(name_of_category)
 
-    def add_transaction(self, amount, tipo, category, date=datetime.now().strftime("%d-%m-%Y"), description=None):
+    def del_category(self, name_of_category: str):
+        self.category.pop(self.category.index(name_of_category))
+
+    def edit_category(self, name_of_category: str, new_name: str):
+        list = self.category
+        list[list.index(name_of_category)] = new_name
+        print(self.category)
+
+    # NOTE: TRANSACTIONS
+    def add_transaction(self, amount: float, tipo: str, category: str,
+                        date=datetime.now().strftime("%d-%m-%Y"),
+                        description=None):
+
         if category in self.category:
             self.transactions.append([amount, description, tipo, category, date])
 
@@ -68,4 +79,4 @@ usr.add_category("Compra")
 usr.add_transaction(130, "expense", "Vendas")
 usr.add_transaction(142, "income", "Compra")
 print("######")
-usr.edit_transaction()
+usr.edit_category("Vendas", "NovaVenda")
