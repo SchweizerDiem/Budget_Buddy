@@ -12,7 +12,7 @@ class user:
     def add_category(self, name_of_category: str):
         self.category.append(name_of_category)
 
-    def add_transaction(self, amount, tipo, category, date=datetime.now().strftime("%Y-%m-%d"), description=None):
+    def add_transaction(self, amount, tipo, category, date=datetime.now().strftime("%d-%m-%Y"), description=None):
         if category in self.category:
             self.transactions.append([amount, description, tipo, category, date])
 
@@ -53,10 +53,10 @@ class user:
                     print("Edited ", self.transactions[trans][3])
                     print(self.transactions[trans])
                 case 1:
-                    self.transactions[trans][4] = input("New Date (%Y-%m-%d): ")
+                    self.transactions[trans][4] = input("New Date (%d-%m-%Y): ")
                     print("Edited ", self.transactions[trans][4])
                     print(self.transactions[trans])
-                case default:
+                case _:
                     print("Not a valid option!!")
 
     def __str__(self) -> str:
