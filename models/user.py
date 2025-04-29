@@ -70,13 +70,50 @@ class user:
                 case _:
                     print("Not a valid option!!")
 
+
     def __str__(self) -> str:
         return f"{self.id}\n{self.transactions}"
+    
+    def get_expenses(self):
+        expense_list = []
+        for i in self.transactions:
+            if i[2] == 'expense':
+                expense_list.append(i[0])
+
+    def get_categories(self):
+        categories = set()
+        for transaction in self.transactions:
+            categories.add(transaction[2])
+        return categories
+
+    def get_amounts(self):
+
+        # Create empty set that will hold both the type of transaction and the 
+        # amount of the payment.
+        tipo_sums = {}
+        for row in self.transactions:
+            # Depackaging the elements of transaction[i]
+            amount, description, tipo, category, date = row
+            if tipo not in tipo_sums:
+                tipo_sums[tipo] = 0
+            tipo_sums[tipo] += amount
+
+        # Return only the values of the hashtable `tipo_sums`.
+        result = list(tipo_sums.values())
+
+        # Order? There's no need to worry about the order in which the types are
+        # gonna be placed since both the get_categories() and this function are
+        # using sets that take the first occurency of the type. This means that
+        # both functions are organizing the order using the same method.
+        return result
+
 
 usr = user()
 usr.add_category("Vendas")
 usr.add_category("Compra")
+usr.add_category("Circo")
 usr.add_transaction(130, "expense", "Vendas")
 usr.add_transaction(142, "income", "Compra")
-print("######")
-usr.edit_category("Vendas", "NovaVenda")
+usr.add_transaction(100, "income", "Compra")
+# print(usr.transactions)
+usr.get_amounts()
