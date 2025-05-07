@@ -1,0 +1,125 @@
+/* --- Header + Tabs --- */
+.header-tabs {
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 20px auto;
+  max-width: 960px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  height: 60px;
+}
+.project-name {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.login-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.tabs {
+  display: flex;
+  border-top: 1px solid #e5e5e5;
+}
+.tab {
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+.tab.active {
+  border-bottom: 2px solid #007bff;
+  font-weight: bold;
+}
+.tab-content {
+  padding: 20px 0;
+}
+
+/* --- Main Content Sections --- */
+.content {
+  display: flex;
+  gap: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.left-panel,
+.right-panel {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.left-panel {
+  flex: 0 0 30%;
+}
+.right-panel {
+  flex: 1;
+}
+
+/* --- Styled Calculator (white mode) --- */
+.calculator {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  justify-items: center;
+}
+.calculator .display {
+  grid-column: span 4;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: right;
+  font-size: 1.5rem;
+  box-sizing: border-box;
+}
+.calculator button {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.btn-num {
+  background: #e0e0e0;
+}
+.btn-op {
+  background: #4b8cff;
+  color: #fff;
+}
+.btn-eq {
+  background: #4b8cff;
+  color: #fff;
+}
+.btn-zero {
+  grid-column: span 2;
+  width: auto;
+  border-radius: 30px;
+  text-align: left;
+  padding-left: 20px;
+}
+
+/* --- Transactions List --- */
+.transactions table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.transactions th,
+.transactions td {
+  padding: 8px;
+  border-bottom: 1px solid #e5e5e5;
+  text-align: left;
+}
+.transactions th {
+  background: #f7f7f7;
+}
