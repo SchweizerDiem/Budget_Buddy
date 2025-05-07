@@ -1,23 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import HeaderTabs from './components/HeaderTabs';
+
+const workspaces = [
+  { id: 'ws1', label: 'Workspace 1', content: <div>👩‍💻 This is WS1</div> },
+  { id: 'ws2', label: 'Workspace 2', content: <div>📊 This is WS2</div> },
+  { id: 'ws3', label: 'Workspace 3', content: <div>🗂️ This is WS3</div> },
+];
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: 20, background: '#f0f2f5', minHeight: '100vh' }}>
+      <HeaderTabs projectName="My Project" workspaces={workspaces} />
     </div>
   );
 }
