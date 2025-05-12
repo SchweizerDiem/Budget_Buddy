@@ -1,5 +1,5 @@
 // Routes
-import Dashboard from "./pages/Dashboard";
+import Dashboard, { dashboardLoader } from "./pages/Dashboard";
 
 //BrowserRouter
 import {
@@ -10,7 +10,8 @@ import {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />
+    element: <Dashboard />,
+    loader: dashboardLoader,
   },
 ]);
 
