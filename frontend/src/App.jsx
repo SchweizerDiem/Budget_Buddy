@@ -1,4 +1,6 @@
 // Routes
+import { logoutAction } from "./actions/logout";
+import Main, { mainLoader } from "./layouts/Main";
 import Dashboard, { dashboardLoader } from "./pages/Dashboard";
 import Error from "./pages/Error"; // Error page
 
@@ -11,10 +13,23 @@ import {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
-    loader: dashboardLoader,
+    element: <Main />,
+    loader: mainLoader,
     // if an unknown locations is entered it will just diplay the error page
-    errorElement: <Error />
+    errorElement: <Error />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />,
+        loader: dashboardLoader,
+        // if an unknown locations is entered it will just diplay the error page
+        errorElement: <Error />
+      },
+      {
+        path: "logout",
+        action: logoutAction,
+      },
+    ]
   },
 ]);
 
