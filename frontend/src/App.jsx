@@ -4,6 +4,9 @@ import Main, { mainLoader } from "./layouts/Main";
 import Dashboard, { dashboardLoader } from "./pages/Dashboard";
 import Error from "./pages/Error"; // Error page
 
+// Library
+import { ToastContainer } from 'react-toastify';
+
 //BrowserRouter
 import {
   createBrowserRouter,
@@ -37,6 +40,7 @@ function App() {
   return (
     <div className="App">
       <RouterProvider router={router} />
+      <ToastContainer />
     </div>
   )
 }
