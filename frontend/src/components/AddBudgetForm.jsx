@@ -1,30 +1,49 @@
-import { Form } from "react-router-dom"
+// reacts
+import { useEffect, useRef } from "react";
+
+// rrd imports
+import { Form, useFetcher } from "react-router-dom"
 
 // library imports
-import { CurrencyDollarIcon } from "@heroicons/react/24/solid"
+import { BuildingStorefrontIcon } from "@heroicons/react/24/solid"
 
 const AddBudgetForm = () => {
+  const fetcher = useFetcher();
+  const isSubmitting = fetcher.state === "submitting"
+
+  const formRef = useRef();
+  const focusRef = useRef();
+
+  useEffect(() => {
+    if (!isSubmitting) {
+      formRef.current.reset()
+      focusRef.current.focus()
+    }
+  }, [isSubmitting])
+
   return (
     <div className="form-wrapper">
       <h2 className="h3">
-        Create budget
+        Add Store
       </h2>
-      <Form
+      <fetcher.Form
         method="post"
         className="grid-sm"
+        ref={formRef}
       >
         <div className="grid-xs">
-          <label htmlFor="newBudget">Budget Name</label>
+          <label htmlFor="newBudget">Store Name</label>
           <input
             type="text"
             name="newBudget"
             id="newBudget"
-            placeholder="e.g., Groceries"
+            placeholder="e.g., store 1"
             required
+            ref={focusRef}
           />
         </div>
         <div className="grid-xs">
-          <label htmlFor="newBudgetAmount">Amount</label>
+          <label htmlFor="newBudgetAmount">Income Goal</label>
           <input
             type="number"
             step="0.01"
@@ -35,11 +54,18 @@ const AddBudgetForm = () => {
             inputMode="decimal"
           />
         </div>
-        <button type="submit" className="btn btn--dark">
-          <span>Create budget</span>
-          <CurrencyDollarIcon width={20} />
+        <input type="hidden" name="_action" value="createBudget" />
+        <button type="submit" className="btn btn--dark" disabled={isSubmitting}>
+          {
+            isSubmitting ? <span>Submitting…</span> : (
+              <>
+                <span>Add store</span>
+                <BuildingStorefrontIcon width={20} />
+              </>
+            )
+          }
         </button>
-      </Form>
+      </fetcher.Form>
     </div>
   )
 }
