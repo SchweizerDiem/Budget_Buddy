@@ -52,6 +52,7 @@ export async function dashboardAction({ request }) {
       createBudget({
         name: values.newBudget,
         amount: values.newBudgetAmount,
+        categories: values.newBudgetCategories
       });
       return toast.success("Budget created!");
     } catch (e) {
@@ -65,7 +66,8 @@ export async function dashboardAction({ request }) {
         name: values.newExpense,
         amount: values.newExpenseAmount,
         budgetId: values.newExpenseBudget,
-        category: values.newExpenseCategory,
+        type: values.newExpenseType,
+        category: values.newExpenseCategory
       });
       return toast.success(`Expense ${values.newExpense} created!`);
     } catch (e) {

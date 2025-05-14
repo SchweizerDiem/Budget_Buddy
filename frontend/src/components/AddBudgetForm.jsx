@@ -54,6 +54,16 @@ const AddBudgetForm = () => {
             inputMode="decimal"
           />
         </div>
+        <div className="grid-xs">
+          <label htmlFor="newBudgetCategories">Store Categories</label>
+          <input
+            type="text"
+            name="newBudgetCategories"
+            id="newBudgetCategories"
+            placeholder="e.g., food, drinks, snacks (comma-separated)"
+            required
+          />
+        </div>
         <input type="hidden" name="_action" value="createBudget" />
         <button type="submit" className="btn btn--dark" disabled={isSubmitting}>
           {

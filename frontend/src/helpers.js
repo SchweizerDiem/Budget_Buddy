@@ -29,13 +29,14 @@ export const deleteItem = ({ key, id }) => {
 };
 
 // create budget
-export const createBudget = ({ name, amount }) => {
+export const createBudget = ({ name, amount, categories }) => {
   const newItem = {
     id: crypto.randomUUID(),
     name: name,
     createdAt: Date.now(),
     amount: +amount,
     color: generateRandomColor(),
+    categories: categories.split(',').map(cat => cat.trim()).filter(cat => cat.length > 0)
   };
   const existingBudgets = fetchData("budgets") ?? [];
   return localStorage.setItem(
@@ -48,22 +49,24 @@ export const createBudget = ({ name, amount }) => {
 export const calculateTotalSpent = (budgets) => {
   const expenses = fetchData("expenses") ?? [];
   const totalSpent = expenses.reduce((acc, expense) => {
-    return acc + expense.amount;
+    // If it's an expense, subtract; if it's income, add
+    const amount = expense.type === "expense" ? -expense.amount : expense.amount;
+    return acc + amount;
   }, 0);
   return totalSpent;
 };
 
 // create expense
-export const createExpense = ({ name, amount, budgetId, category }) => {
+export const createExpense = ({ name, amount, budgetId, type, category }) => {
   const newItem = {
     id: crypto.randomUUID(),
     name: name,
     createdAt: Date.now(),
     amount: +amount,
-    category: category,
+    type: type,
     budgetId: budgetId,
+    category: category
   };
-  console.log("HEREEEE", newItem);
   const existingExpenses = fetchData("expenses") ?? [];
   return localStorage.setItem(
     "expenses",
@@ -78,8 +81,9 @@ export const calculateSpentByBudget = (budgetId) => {
     // check if expense.id === budgetId I passed in
     if (expense.budgetId !== budgetId) return acc;
 
-    // add the current amount to my total
-    return (acc += expense.amount);
+    // If it's an expense, subtract; if it's income, add
+    const amount = expense.type === "expense" ? -expense.amount : expense.amount;
+    return acc + amount;
   }, 0);
   return budgetSpent;
 };

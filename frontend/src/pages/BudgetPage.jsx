@@ -27,7 +27,7 @@ export async function budgetLoader({ params }) {
   });
 
   if (!budget) {
-    throw new Error("The budget you’re trying to find doesn’t exist");
+    throw new Error("The budget you're trying to find doesn't exist");
   }
 
   return { budget, expenses };
@@ -44,7 +44,8 @@ export async function budgetAction({ request }) {
         name: values.newExpense,
         amount: values.newExpenseAmount,
         budgetId: values.newExpenseBudget,
-        category: values.newExpenseCategory,
+        type: values.newExpenseType,
+        category: values.newExpenseCategory
       });
       return toast.success(`Expense ${values.newExpense} created!`);
     } catch (e) {

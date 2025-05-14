@@ -1,5 +1,5 @@
 // react imports
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 // rrd imports
 import { useFetcher } from "react-router-dom"
@@ -10,9 +10,9 @@ import { PlusCircleIcon } from "@heroicons/react/24/solid"
 const AddExpenseForm = ({ budgets }) => {
   const fetcher = useFetcher()
   const isSubmitting = fetcher.state === "submitting";
-
   const formRef = useRef()
   const focusRef = useRef()
+  const [selectedBudget, setSelectedBudget] = useState(budgets[0]?.id ?? "")
 
   useEffect(() => {
     if (!isSubmitting) {
@@ -21,8 +21,9 @@ const AddExpenseForm = ({ budgets }) => {
       // reset focus
       focusRef.current.focus()
     }
-
   }, [isSubmitting])
+
+  const selectedBudgetObj = budgets.find(budget => budget.id === selectedBudget)
 
   return (
     <div className="form-wrapper">
@@ -38,8 +39,8 @@ const AddExpenseForm = ({ budgets }) => {
       >
         <div className="expense-inputs">
           <div className="grid-xs">
-            <label htmlFor="newExpenseCategory">Category</label>
-            <select name="newExpenseCategory" id="transaction-type">
+            <label htmlFor="newExpenseType">Type</label>
+            <select name="newExpenseType" id="transaction-type">
               <option value="expense">Expense</option>
               <option value="income">Income</option>
             </select>
@@ -70,7 +71,13 @@ const AddExpenseForm = ({ budgets }) => {
         </div>
         <div className="grid-xs" hidden={budgets.length === 1}>
           <label htmlFor="newExpenseBudget">Select Store</label>
-          <select name="newExpenseBudget" id="newExpenseBudget" required>
+          <select 
+            name="newExpenseBudget" 
+            id="newExpenseBudget" 
+            required
+            value={selectedBudget}
+            onChange={(e) => setSelectedBudget(e.target.value)}
+          >
             {
               budgets
                 .sort((a, b) => a.createdAt - b.createdAt)
@@ -84,20 +91,14 @@ const AddExpenseForm = ({ budgets }) => {
             }
           </select>
         </div>
-        <div className="grid-xs" hidden={budgets.length === 1}>
-          <label htmlFor="newExpenseBudget">Select Category</label>
-          <select name="newExpenseBudget" id="newExpenseBudget" required>
-            {
-              budgets
-                .sort((a, b) => a.createdAt - b.createdAt)
-                .map((budget) => {
-                  return (
-                    <option key={budget.id} value={budget.id}>
-                      {budget.name}
-                    </option>
-                  )
-                })
-            }
+        <div className="grid-xs">
+          <label htmlFor="newExpenseCategory">Category</label>
+          <select name="newExpenseCategory" id="newExpenseCategory" required>
+            {selectedBudgetObj?.categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
           </select>
         </div>
         <input type="hidden" name="_action" value="createExpense" />
