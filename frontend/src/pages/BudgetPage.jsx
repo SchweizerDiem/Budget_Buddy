@@ -8,9 +8,10 @@ import { toast } from "react-toastify";
 import AddExpenseForm from "../components/AddExpenseForm";
 import BudgetItem from "../components/BudgetItem";
 import Table from "../components/Table";
+import CategoryManager from "../components/CategoryManager";
 
 // helpers
-import { createExpense, deleteItem, getAllMatchingItems } from "../helpers";
+import { createExpense, deleteItem, getAllMatchingItems, fetchData } from "../helpers";
 
 // loader
 export async function budgetLoader({ params }) {
@@ -64,6 +65,66 @@ export async function budgetAction({ request }) {
       throw new Error("There was a problem deleting your expense.");
     }
   }
+
+  if (_action === "addCategory") {
+    try {
+      const existingBudgets = fetchData("budgets");
+      const budget = existingBudgets.find(b => b.id === values.budgetId);
+      
+      if (budget.categories.includes(values.newCategory)) {
+        return toast.error("This category already exists!");
+      }
+
+      budget.categories.push(values.newCategory);
+      localStorage.setItem("budgets", JSON.stringify(existingBudgets));
+      return toast.success("Category added!");
+    } catch (e) {
+      throw new Error("There was a problem adding the category.");
+    }
+  }
+
+  if (_action === "deleteCategory") {
+    try {
+      const existingBudgets = fetchData("budgets");
+      const budget = existingBudgets.find(b => b.id === values.budgetId);
+      
+      budget.categories = budget.categories.filter(cat => cat !== values.categoryToDelete);
+      localStorage.setItem("budgets", JSON.stringify(existingBudgets));
+      return toast.success("Category deleted!");
+    } catch (e) {
+      throw new Error("There was a problem deleting the category.");
+    }
+  }
+
+  if (_action === "editCategory") {
+    try {
+      const existingBudgets = fetchData("budgets");
+      const budget = existingBudgets.find(b => b.id === values.budgetId);
+      
+      if (budget.categories.includes(values.newCategory)) {
+        return toast.error("This category already exists!");
+      }
+
+      budget.categories = budget.categories.map(cat => 
+        cat === values.oldCategory ? values.newCategory : cat
+      );
+
+      // Update all expenses with the old category to use the new category name
+      const expenses = fetchData("expenses") ?? [];
+      const updatedExpenses = expenses.map(expense => {
+        if (expense.budgetId === values.budgetId && expense.category === values.oldCategory) {
+          return { ...expense, category: values.newCategory };
+        }
+        return expense;
+      });
+
+      localStorage.setItem("budgets", JSON.stringify(existingBudgets));
+      localStorage.setItem("expenses", JSON.stringify(updatedExpenses));
+      return toast.success("Category updated!");
+    } catch (e) {
+      throw new Error("There was a problem updating the category.");
+    }
+  }
 }
 
 const BudgetPage = () => {
@@ -83,6 +144,7 @@ const BudgetPage = () => {
         <BudgetItem budget={budget} showDelete={true} />
         <AddExpenseForm budgets={[budget]} />
       </div>
+      <CategoryManager budget={budget} />
       {expenses && expenses.length > 0 && (
         <div className="grid-md">
           <h2>

@@ -602,3 +602,59 @@ table a {
 .Toastify__toast-body {
   font-size: var(--fs-300);
 }
+
+/* categories */
+.categories-wrapper {
+  background-color: var(--bkg);
+  border-radius: var(--round-lg);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.categories-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background-color: hsl(var(--accent));
+  color: hsl(var(--bkg));
+  padding: 0.5rem var(--space-sm);
+  border-radius: var(--round-sm);
+}
+
+.category-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-edit-form,
+.category-delete-form,
+.category-add-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-item input {
+  background: hsl(var(--bkg));
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--round-sm);
+  max-width: 150px;
+  color: hsl(var(--text));
+}
+
+.category-add-form {
+  margin-top: var(--space-sm);
+}
+
+.category-add-form input {
+  border: 2px solid hsl(var(--accent));
+  padding: 0.5rem;
+  border-radius: var(--round-sm);
+}
