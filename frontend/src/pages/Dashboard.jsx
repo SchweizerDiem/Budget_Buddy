@@ -17,7 +17,9 @@ import {
   createExpense,
   deleteItem,
   fetchData,
+  formatCurrency,
   waait,
+  calculateTotalSpent,
 } from "../helpers";
 
 // loader
@@ -93,6 +95,10 @@ const Dashboard = () => {
           <h1>
             Welcome back, <span className="accent">{userName}</span>
           </h1>
+          <h3>
+            Total Balance = {formatCurrency(calculateTotalSpent(budgets))}
+          </h3>
+
           <div className="grid-sm">
             {budgets && budgets.length > 0 ? (
               <div className="grid-lg">

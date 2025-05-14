@@ -44,6 +44,15 @@ export const createBudget = ({ name, amount }) => {
   );
 };
 
+// total all budgets
+export const calculateTotalSpent = (budgets) => {
+  const expenses = fetchData("expenses") ?? [];
+  const totalSpent = expenses.reduce((acc, expense) => {
+    return acc + expense.amount;
+  }, 0);
+  return totalSpent;
+};
+
 // create expense
 export const createExpense = ({ name, amount, budgetId }) => {
   const newItem = {
