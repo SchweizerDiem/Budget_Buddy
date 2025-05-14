@@ -54,14 +54,16 @@ export const calculateTotalSpent = (budgets) => {
 };
 
 // create expense
-export const createExpense = ({ name, amount, budgetId }) => {
+export const createExpense = ({ name, amount, budgetId, category }) => {
   const newItem = {
     id: crypto.randomUUID(),
     name: name,
     createdAt: Date.now(),
     amount: +amount,
+    category: category,
     budgetId: budgetId,
   };
+  console.log("HEREEEE", newItem);
   const existingExpenses = fetchData("expenses") ?? [];
   return localStorage.setItem(
     "expenses",

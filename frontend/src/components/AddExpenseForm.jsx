@@ -38,6 +38,13 @@ const AddExpenseForm = ({ budgets }) => {
       >
         <div className="expense-inputs">
           <div className="grid-xs">
+            <label htmlFor="newExpenseCategory">Category</label>
+            <select name="newExpenseCategory" id="transaction-type">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </div>
+          <div className="grid-xs">
             <label htmlFor="newExpense">Expense Name</label>
             <input
               type="text"
