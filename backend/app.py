@@ -94,27 +94,52 @@ def delete_budget(budget_id):
 
 @app.route('/api/budgets/<budget_id>', methods=['PATCH'])
 def update_budget(budget_id):
-    budget = Budget.query.get_or_404(budget_id)
-    data = request.json
-    
-    if 'categories' in data:
-        budget.categories = data['categories']
-    if 'name' in data:
-        budget.name = data['name']
-    if 'amount' in data:
-        budget.amount = float(data['amount'])
-    if 'color' in data:
-        budget.color = data['color']
-    
-    db.session.commit()
-    return jsonify({
-        'id': budget.id,
-        'name': budget.name,
-        'amount': budget.amount,
-        'color': budget.color,
-        'categories': budget.categories.split(',') if budget.categories else [],
-        'createdAt': budget.created_at.timestamp() * 1000
-    })
+    try:
+        budget = Budget.query.get_or_404(budget_id)
+        data = request.json
+        print(f"Updating budget {budget_id} with data:", data)  # Debug log
+        
+        if 'categories' in data:
+            # Handle both string and array inputs
+            categories = data['categories']
+            if isinstance(categories, str):
+                # If it's a string, split it and clean
+                categories = [cat.strip() for cat in categories.split(',') if cat.strip()]
+            elif isinstance(categories, list):
+                # If it's a list, just clean each item
+                categories = [str(cat).strip() for cat in categories if str(cat).strip()]
+            
+            # Sort categories to maintain consistent order
+            categories.sort()
+            budget.categories = ','.join(categories) if categories else ''
+            print(f"Updated categories: {budget.categories}")  # Debug log
+        
+        if 'name' in data:
+            budget.name = data['name']
+        if 'amount' in data:
+            budget.amount = float(data['amount'])
+        if 'color' in data:
+            budget.color = data['color']
+        
+        db.session.commit()
+        
+        # Get fresh data after commit
+        db.session.refresh(budget)
+        
+        response_data = {
+            'id': budget.id,
+            'name': budget.name,
+            'amount': budget.amount,
+            'color': budget.color,
+            'categories': budget.categories.split(',') if budget.categories else [],
+            'createdAt': budget.created_at.timestamp() * 1000
+        }
+        print(f"Sending response: {response_data}")  # Debug log
+        return jsonify(response_data)
+    except Exception as e:
+        print(f"Error updating budget: {str(e)}")  # Debug log
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/expenses', methods=['POST'])
 def create_expense():
