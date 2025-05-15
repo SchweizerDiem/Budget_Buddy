@@ -12,26 +12,28 @@ import CategoryManager from "../components/CategoryManager";
 import MonthSelector from "../components/MonthSelector";
 
 // helpers
-import { createExpense, deleteItem, getAllMatchingItems, fetchData } from "../helpers";
+import { createExpense, deleteItem, getAllMatchingItems } from "../helpers";
 import { useState, useCallback } from "react";
 
 // loader
 export async function budgetLoader({ params }) {
-  const budget = await getAllMatchingItems({
+  const budgets = await getAllMatchingItems({
     category: "budgets",
     key: "id",
     value: params.id,
-  })[0];
+  });
+
+  const budget = budgets[0];
+
+  if (!budget) {
+    throw new Error("The budget you're trying to find doesn't exist");
+  }
 
   const expenses = await getAllMatchingItems({
     category: "expenses",
     key: "budgetId",
     value: params.id,
   });
-
-  if (!budget) {
-    throw new Error("The budget you're trying to find doesn't exist");
-  }
 
   return { budget, expenses };
 }
@@ -43,7 +45,7 @@ export async function budgetAction({ request }) {
 
   if (_action === "createExpense") {
     try {
-      createExpense({
+      await createExpense({
         name: values.newExpense,
         amount: values.newExpenseAmount,
         budgetId: values.newExpenseBudget,
@@ -58,7 +60,7 @@ export async function budgetAction({ request }) {
 
   if (_action === "deleteExpense") {
     try {
-      deleteItem({
+      await deleteItem({
         key: "expenses",
         id: values.expenseId,
       });
@@ -70,15 +72,31 @@ export async function budgetAction({ request }) {
 
   if (_action === "addCategory") {
     try {
-      const existingBudgets = fetchData("budgets");
-      const budget = existingBudgets.find(b => b.id === values.budgetId);
+      const budget = await getAllMatchingItems({
+        category: "budgets",
+        key: "id",
+        value: values.budgetId,
+      })[0];
       
-      if (budget.categories.includes(values.newCategory)) {
+      const categories = budget.categories.split(',').filter(cat => cat.length > 0);
+      
+      if (categories.includes(values.newCategory)) {
         return toast.error("This category already exists!");
       }
 
-      budget.categories.push(values.newCategory);
-      localStorage.setItem("budgets", JSON.stringify(existingBudgets));
+      categories.push(values.newCategory);
+      
+      // Update budget with new categories
+      await fetch(`/api/budgets/${values.budgetId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          categories: categories.join(','),
+        }),
+      });
+      
       return toast.success("Category added!");
     } catch (e) {
       throw new Error("There was a problem adding the category.");
@@ -87,11 +105,27 @@ export async function budgetAction({ request }) {
 
   if (_action === "deleteCategory") {
     try {
-      const existingBudgets = fetchData("budgets");
-      const budget = existingBudgets.find(b => b.id === values.budgetId);
+      const budget = await getAllMatchingItems({
+        category: "budgets",
+        key: "id",
+        value: values.budgetId,
+      })[0];
       
-      budget.categories = budget.categories.filter(cat => cat !== values.categoryToDelete);
-      localStorage.setItem("budgets", JSON.stringify(existingBudgets));
+      const categories = budget.categories.split(',')
+        .filter(cat => cat.length > 0)
+        .filter(cat => cat !== values.categoryToDelete);
+      
+      // Update budget with new categories
+      await fetch(`/api/budgets/${values.budgetId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          categories: categories.join(','),
+        }),
+      });
+      
       return toast.success("Category deleted!");
     } catch (e) {
       throw new Error("There was a problem deleting the category.");
@@ -100,28 +134,54 @@ export async function budgetAction({ request }) {
 
   if (_action === "editCategory") {
     try {
-      const existingBudgets = fetchData("budgets");
-      const budget = existingBudgets.find(b => b.id === values.budgetId);
+      const budget = await getAllMatchingItems({
+        category: "budgets",
+        key: "id",
+        value: values.budgetId,
+      })[0];
       
-      if (budget.categories.includes(values.newCategory)) {
+      const categories = budget.categories.split(',').filter(cat => cat.length > 0);
+      
+      if (categories.includes(values.newCategory)) {
         return toast.error("This category already exists!");
       }
 
-      budget.categories = budget.categories.map(cat => 
+      const updatedCategories = categories.map(cat => 
         cat === values.oldCategory ? values.newCategory : cat
       );
 
-      // Update all expenses with the old category to use the new category name
-      const expenses = fetchData("expenses") ?? [];
-      const updatedExpenses = expenses.map(expense => {
-        if (expense.budgetId === values.budgetId && expense.category === values.oldCategory) {
-          return { ...expense, category: values.newCategory };
-        }
-        return expense;
+      // Update budget with new categories
+      await fetch(`/api/budgets/${values.budgetId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          categories: updatedCategories.join(','),
+        }),
       });
 
-      localStorage.setItem("budgets", JSON.stringify(existingBudgets));
-      localStorage.setItem("expenses", JSON.stringify(updatedExpenses));
+      // Update all expenses with the old category
+      const expenses = await getAllMatchingItems({
+        category: "expenses",
+        key: "budgetId",
+        value: values.budgetId,
+      });
+
+      for (const expense of expenses) {
+        if (expense.category === values.oldCategory) {
+          await fetch(`/api/expenses/${expense.id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              category: values.newCategory,
+            }),
+          });
+        }
+      }
+
       return toast.success("Category updated!");
     } catch (e) {
       throw new Error("There was a problem updating the category.");

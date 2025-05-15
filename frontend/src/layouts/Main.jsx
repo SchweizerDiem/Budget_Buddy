@@ -8,11 +8,11 @@ import wave from "../assets/wave.svg";
 import Nav from "../components/Nav";
 
 //  helper functions
-import { fetchData } from "../helpers"
+import { getUserId } from "../helpers"
 
 // loader
 export function mainLoader() {
-  const userName = fetchData("userName");
+  const userName = getUserId();
   return { userName }
 }
 

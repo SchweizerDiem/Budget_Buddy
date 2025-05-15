@@ -92,6 +92,30 @@ def delete_budget(budget_id):
     db.session.commit()
     return '', 204
 
+@app.route('/api/budgets/<budget_id>', methods=['PATCH'])
+def update_budget(budget_id):
+    budget = Budget.query.get_or_404(budget_id)
+    data = request.json
+    
+    if 'categories' in data:
+        budget.categories = data['categories']
+    if 'name' in data:
+        budget.name = data['name']
+    if 'amount' in data:
+        budget.amount = float(data['amount'])
+    if 'color' in data:
+        budget.color = data['color']
+    
+    db.session.commit()
+    return jsonify({
+        'id': budget.id,
+        'name': budget.name,
+        'amount': budget.amount,
+        'color': budget.color,
+        'categories': budget.categories.split(',') if budget.categories else [],
+        'createdAt': budget.created_at.timestamp() * 1000
+    })
+
 @app.route('/api/expenses', methods=['POST'])
 def create_expense():
     data = request.json
@@ -133,6 +157,31 @@ def delete_expense(expense_id):
     db.session.delete(expense)
     db.session.commit()
     return '', 204
+
+@app.route('/api/expenses/<expense_id>', methods=['PATCH'])
+def update_expense(expense_id):
+    expense = Expense.query.get_or_404(expense_id)
+    data = request.json
+    
+    if 'name' in data:
+        expense.name = data['name']
+    if 'amount' in data:
+        expense.amount = float(data['amount'])
+    if 'type' in data:
+        expense.type = data['type']
+    if 'category' in data:
+        expense.category = data['category']
+    
+    db.session.commit()
+    return jsonify({
+        'id': expense.id,
+        'name': expense.name,
+        'amount': expense.amount,
+        'type': expense.type,
+        'category': expense.category,
+        'budgetId': expense.budget_id,
+        'createdAt': expense.created_at.timestamp() * 1000
+    })
 
 if __name__ == '__main__':
     with app.app_context():

@@ -1,5 +1,6 @@
 // rrd imports
 import { Link, useFetcher } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 // library import
 import { TrashIcon } from "@heroicons/react/24/solid";
@@ -13,12 +14,31 @@ import {
 
 const ExpenseItem = ({ expense, showBudget }) => {
   const fetcher = useFetcher();
+  const [budget, setBudget] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const budget = getAllMatchingItems({
-    category: "budgets",
-    key: "id",
-    value: expense.budgetId,
-  })[0];
+  useEffect(() => {
+    const loadBudget = async () => {
+      try {
+        const [budgetData] = await getAllMatchingItems({
+          category: "budgets",
+          key: "id",
+          value: expense.budgetId,
+        });
+        setBudget(budgetData);
+      } catch (error) {
+        console.error("Error loading budget:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (showBudget) {
+      loadBudget();
+    } else {
+      setLoading(false);
+    }
+  }, [expense.budgetId, showBudget]);
 
   return (
     <>
@@ -29,14 +49,20 @@ const ExpenseItem = ({ expense, showBudget }) => {
       <td>{expense.category}</td>
       {showBudget && (
         <td>
-          <Link
-            to={`/budget/${budget.id}`}
-            style={{
-              "--accent": budget.color,
-            }}
-          >
-            {budget.name}
-          </Link>
+          {loading ? (
+            <span>Loading...</span>
+          ) : budget ? (
+            <Link
+              to={`/budget/${budget.id}`}
+              style={{
+                "--accent": budget.color,
+              }}
+            >
+              {budget.name}
+            </Link>
+          ) : (
+            <span className="error">Budget not found</span>
+          )}
         </td>
       )}
       <td>

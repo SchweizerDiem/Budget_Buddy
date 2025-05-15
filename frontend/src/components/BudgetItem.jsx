@@ -1,5 +1,6 @@
 // rrd imports
 import { Form, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 // library imports
 import { BanknotesIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -13,7 +14,23 @@ import {
 
 const BudgetItem = ({ budget, showDelete = false }) => {
   const { id, name, amount, color } = budget;
-  const spent = calculateSpentByBudget(id);
+  const [spent, setSpent] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSpentAmount = async () => {
+      try {
+        const spentAmount = await calculateSpentByBudget(id);
+        setSpent(spentAmount);
+      } catch (error) {
+        console.error("Error loading spent amount:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSpentAmount();
+  }, [id]);
 
   return (
     <div
@@ -26,13 +43,19 @@ const BudgetItem = ({ budget, showDelete = false }) => {
         <h3>{name}</h3>
         <p>{formatCurrency(amount)} Budgeted</p>
       </div>
-      <progress max={amount} value={spent}>
-        {formatPercentage(spent / amount)}
-      </progress>
-      <div className="progress-text">
-        <small>{formatCurrency(spent)} stored</small>
-        <small>{formatCurrency(amount - spent)} remaining</small>
-      </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <progress max={amount} value={spent}>
+            {formatPercentage(spent / amount)}
+          </progress>
+          <div className="progress-text">
+            <small>{formatCurrency(spent)} stored</small>
+            <small>{formatCurrency(amount - spent)} remaining</small>
+          </div>
+        </>
+      )}
       {showDelete ? (
         <div className="flex-sm">
           <Form

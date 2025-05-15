@@ -1,5 +1,6 @@
 // rrd imports
 import { Link, useLoaderData } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 // library imports
 import { toast } from "react-toastify";
@@ -16,18 +17,43 @@ import {
   createBudget,
   createExpense,
   deleteItem,
-  fetchData,
+  getUserId,
   formatCurrency,
   waait,
   calculateTotalSpent,
 } from "../helpers";
 
+// API functions
+import { createUser, getBudgets, getExpenses, getUser } from "../api";
+
 // loader
-export function dashboardLoader() {
-  const userName = fetchData("userName");
-  const budgets = fetchData("budgets");
-  const expenses = fetchData("expenses");
-  return { userName, budgets, expenses };
+export async function dashboardLoader() {
+  const userId = getUserId();
+  if (!userId) {
+    return { userName: null, budgets: [], expenses: [] };
+  }
+
+  try {
+    // Get user data
+    const user = await getUser(userId);
+    const budgets = await getBudgets(userId);
+    let allExpenses = [];
+    
+    // Fetch expenses for each budget
+    for (const budget of budgets) {
+      const expenses = await getExpenses(budget.id);
+      allExpenses = [...allExpenses, ...expenses];
+    }
+
+    return { 
+      userName: user.name,
+      budgets, 
+      expenses: allExpenses 
+    };
+  } catch (error) {
+    console.error("Error loading dashboard data:", error);
+    throw new Error("There was a problem loading your dashboard.");
+  }
 }
 
 // action
@@ -40,7 +66,8 @@ export async function dashboardAction({ request }) {
   // new user submission
   if (_action === "newUser") {
     try {
-      localStorage.setItem("userName", JSON.stringify(values.userName));
+      const user = await createUser(values.userName);
+      localStorage.setItem("userId", user.id);
       return toast.success(`Welcome, ${values.userName}`);
     } catch (e) {
       throw new Error("There was a problem creating your account.");
@@ -49,7 +76,7 @@ export async function dashboardAction({ request }) {
 
   if (_action === "createBudget") {
     try {
-      createBudget({
+      await createBudget({
         name: values.newBudget,
         amount: values.newBudgetAmount,
         categories: values.newBudgetCategories
@@ -62,7 +89,7 @@ export async function dashboardAction({ request }) {
 
   if (_action === "createExpense") {
     try {
-      createExpense({
+      await createExpense({
         name: values.newExpense,
         amount: values.newExpenseAmount,
         budgetId: values.newExpenseBudget,
@@ -77,7 +104,7 @@ export async function dashboardAction({ request }) {
 
   if (_action === "deleteExpense") {
     try {
-      deleteItem({
+      await deleteItem({
         key: "expenses",
         id: values.expenseId,
       });
@@ -90,6 +117,28 @@ export async function dashboardAction({ request }) {
 
 const Dashboard = () => {
   const { userName, budgets, expenses } = useLoaderData();
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTotalSpent = async () => {
+      try {
+        const total = await calculateTotalSpent(budgets);
+        setTotalSpent(total);
+      } catch (error) {
+        console.error("Error calculating total spent:", error);
+        toast.error("Failed to calculate total balance");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (budgets?.length) {
+      loadTotalSpent();
+    } else {
+      setLoading(false);
+    }
+  }, [budgets]);
 
   return (
     <>
@@ -99,7 +148,7 @@ const Dashboard = () => {
             Welcome back, <span className="accent">{userName}</span>
           </h1>
           <h3>
-            Total Balance = {formatCurrency(calculateTotalSpent(budgets))}
+            Total Balance = {loading ? "Calculating..." : formatCurrency(totalSpent)}
           </h3>
 
           <div className="grid-sm">

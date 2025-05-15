@@ -8,12 +8,32 @@ import { toast } from "react-toastify";
 import Table from "../components/Table";
 
 // helpers
-import { deleteItem, fetchData } from "../helpers";
+import { deleteItem, getAllMatchingItems, getUserId } from "../helpers";
 
 // loader
 export async function expensesLoader() {
-  const expenses = fetchData("expenses");
-  return { expenses };
+  const userId = getUserId();
+  if (!userId) return { expenses: [] };
+
+  // Get all budgets for the user
+  const budgets = await getAllMatchingItems({
+    category: "budgets",
+    key: "userId",
+    value: userId,
+  });
+
+  // Get expenses for all budgets
+  let allExpenses = [];
+  for (const budget of budgets) {
+    const expenses = await getAllMatchingItems({
+      category: "expenses",
+      key: "budgetId",
+      value: budget.id,
+    });
+    allExpenses = [...allExpenses, ...expenses];
+  }
+
+  return { expenses: allExpenses };
 }
 
 // action
@@ -23,7 +43,7 @@ export async function expensesAction({ request }) {
 
   if (_action === "deleteExpense") {
     try {
-      deleteItem({
+      await deleteItem({
         key: "expenses",
         id: values.expenseId,
       });
