@@ -1,11 +1,13 @@
 // rrd imports
 import { useLoaderData } from "react-router-dom";
+import { useState } from "react";
 
 // library import
 import { toast } from "react-toastify";
 
 // component imports
 import Table from "../components/Table";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 // helpers
 import { deleteItem, getAllMatchingItems, getUserId } from "../helpers";
@@ -56,11 +58,17 @@ export async function expensesAction({ request }) {
 
 const ExpensesPage = () => {
   const { expenses } = useLoaderData();
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="grid-lg">
       <h1>All Expenses</h1>
-      {expenses && expenses.length > 0 ? (
+      {loading ? (
+        <div className="loading-spinner">
+          <LoadingSpinner />
+          <p className="loading-text">Loading expenses...</p>
+        </div>
+      ) : expenses && expenses.length > 0 ? (
         <div className="grid-md">
           <h2>
             Recent Expenses <small>({expenses.length} total)</small>

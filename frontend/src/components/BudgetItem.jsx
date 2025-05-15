@@ -5,6 +5,9 @@ import { useState, useEffect } from "react";
 // library imports
 import { BanknotesIcon, TrashIcon } from "@heroicons/react/24/outline";
 
+// components
+import LoadingSpinner from "./LoadingSpinner";
+
 // helper functions
 import {
   calculateSpentByBudget,
@@ -44,14 +47,17 @@ const BudgetItem = ({ budget, showDelete = false }) => {
         <p>{formatCurrency(amount)} Budgeted</p>
       </div>
       {loading ? (
-        <p>Loading...</p>
+        <div className="loading-spinner">
+          <LoadingSpinner />
+          <p className="loading-text">Calculating spent amount...</p>
+        </div>
       ) : (
         <>
           <progress max={amount} value={spent}>
             {formatPercentage(spent / amount)}
           </progress>
           <div className="progress-text">
-            <small>{formatCurrency(spent)} stored</small>
+            <small>{formatCurrency(spent)} spent</small>
             <small>{formatCurrency(amount - spent)} remaining</small>
           </div>
         </>
@@ -72,7 +78,7 @@ const BudgetItem = ({ budget, showDelete = false }) => {
             }}
           >
             <button type="submit" className="btn">
-              <span>Delete Store</span>
+              <span>Delete Budget</span>
               <TrashIcon width={20} />
             </button>
           </Form>

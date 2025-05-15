@@ -11,6 +11,7 @@ import AddBudgetForm from "../components/AddBudgetForm";
 import AddExpenseForm from "../components/AddExpenseForm";
 import BudgetItem from "../components/BudgetItem";
 import Table from "../components/Table";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 //  helper functions
 import {
@@ -148,7 +149,13 @@ const Dashboard = () => {
             Welcome back, <span className="accent">{userName}</span>
           </h1>
           <h3>
-            Total Balance = {loading ? "Calculating..." : formatCurrency(totalSpent)}
+            Total Balance = {loading ? (
+              <div className="loading-spinner" style={{ display: 'inline-flex', marginLeft: '10px' }}>
+                <LoadingSpinner />
+              </div>
+            ) : (
+              formatCurrency(totalSpent)
+            )}
           </h3>
 
           <div className="grid-sm">
