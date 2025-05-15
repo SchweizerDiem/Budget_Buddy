@@ -10,6 +10,7 @@ import BudgetItem from "../components/BudgetItem";
 import Table from "../components/Table";
 import CategoryManager from "../components/CategoryManager";
 import MonthSelector from "../components/MonthSelector";
+import MonthlyStats from "../components/MonthlyStats";
 
 // helpers
 import { createExpense, deleteItem, getAllMatchingItems } from "../helpers";
@@ -226,6 +227,7 @@ const BudgetPage = () => {
             <span className="accent">{budget.name}</span> Expenses
           </h2>
           <MonthSelector onMonthChange={handleMonthChange} />
+          <MonthlyStats expenses={filteredExpenses} />
           <Table expenses={filteredExpenses} showBudget={false} />
         </div>
       )}

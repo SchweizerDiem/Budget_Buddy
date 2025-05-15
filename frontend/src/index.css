@@ -746,3 +746,64 @@ table a {
   margin-top: var(--space-sm);
   text-align: center;
 }
+
+/* Monthly Stats Styles */
+.stats-container {
+  background-color: hsl(var(--bkg));
+  border-radius: var(--round-lg);
+  padding: var(--space-md);
+  margin-top: var(--space-lg);
+  box-shadow: 0.25em 0.3em 1em hsl(var(--muted) / 0.2);
+}
+
+.stats-container h3 {
+  color: hsl(var(--accent));
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-md);
+}
+
+.stat-item {
+  background-color: hsl(var(--bkg));
+  padding: var(--space-sm);
+  border-radius: var(--round-md);
+  border: 2px solid hsl(var(--light));
+  transition: all 0.2s ease-in-out;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px hsl(var(--muted) / 0.2);
+}
+
+.stat-item h4 {
+  color: hsl(var(--muted));
+  font-size: var(--fs-300);
+  margin-bottom: var(--space-xs);
+}
+
+.stat-item p {
+  font-size: var(--fs-400);
+  font-weight: bold;
+  margin: 0;
+}
+
+.stat-item small {
+  display: block;
+  font-size: var(--fs-200);
+  color: hsl(var(--muted));
+  margin-top: var(--space-xs);
+}
+
+.expense-text {
+  color: hsl(var(--warning));
+}
+
+.income-text {
+  color: hsl(var(--accent));
+}
