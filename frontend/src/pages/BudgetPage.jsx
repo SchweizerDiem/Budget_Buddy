@@ -9,9 +9,11 @@ import AddExpenseForm from "../components/AddExpenseForm";
 import BudgetItem from "../components/BudgetItem";
 import Table from "../components/Table";
 import CategoryManager from "../components/CategoryManager";
+import MonthSelector from "../components/MonthSelector";
 
 // helpers
 import { createExpense, deleteItem, getAllMatchingItems, fetchData } from "../helpers";
+import { useState, useCallback } from "react";
 
 // loader
 export async function budgetLoader({ params }) {
@@ -129,6 +131,19 @@ export async function budgetAction({ request }) {
 
 const BudgetPage = () => {
   const { budget, expenses } = useLoaderData();
+  const [filteredExpenses, setFilteredExpenses] = useState(expenses);
+
+  const handleMonthChange = useCallback((selectedMonth) => {
+    const [year, month] = selectedMonth.split('-');
+    const filtered = expenses.filter((expense) => {
+      const expenseDate = new Date(expense.createdAt);
+      return (
+        expenseDate.getFullYear() === parseInt(year) &&
+        expenseDate.getMonth() === parseInt(month) - 1
+      );
+    });
+    setFilteredExpenses(filtered);
+  }, [expenses]);
 
   return (
     <div
@@ -150,7 +165,8 @@ const BudgetPage = () => {
           <h2>
             <span className="accent">{budget.name}</span> Expenses
           </h2>
-          <Table expenses={expenses} showBudget={false} />
+          <MonthSelector onMonthChange={handleMonthChange} />
+          <Table expenses={filteredExpenses} showBudget={false} />
         </div>
       )}
     </div>
