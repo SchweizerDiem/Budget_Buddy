@@ -52,6 +52,21 @@ export const deleteBudget = async (budgetId) => {
   return true;
 };
 
+export const updateBudget = async (budgetId, data) => {
+  const response = await fetch(`${API_BASE_URL}/budgets/${budgetId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to update budget');
+  }
+  return response.json();
+};
+
 // Expense operations
 export const createExpense = async ({ name, amount, budgetId, type, category }) => {
   const response = await fetch(`${API_BASE_URL}/expenses`, {
