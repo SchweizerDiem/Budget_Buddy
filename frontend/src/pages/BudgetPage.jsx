@@ -73,94 +73,178 @@ export async function budgetAction({ request }) {
 
   if (_action === "addCategory") {
     try {
-      const budget = await getAllMatchingItems({
+      const budgets = await getAllMatchingItems({
         category: "budgets",
         key: "id",
         value: values.budgetId,
-      })[0];
+      });
       
-      const categories = budget.categories.split(',').filter(cat => cat.length > 0);
+      if (!budgets || budgets.length === 0) {
+        throw new Error("Budget not found");
+      }
+
+      const budget = budgets[0];
+      console.log("Current budget:", budget); // Debug log
       
-      if (categories.includes(values.newCategory)) {
+      // Convert comma-separated string to array
+      const currentCategories = budget.categories ? budget.categories.split(',').filter(cat => cat.length > 0) : [];
+      
+      if (currentCategories.includes(values.newCategory)) {
         return toast.error("This category already exists!");
       }
 
-      categories.push(values.newCategory);
+      currentCategories.push(values.newCategory);
+      console.log("Updated categories:", currentCategories); // Debug log
       
-      // Update budget with new categories
-      await fetch(`/api/budgets/${values.budgetId}`, {
+      const response = await fetch(`/api/budgets/${values.budgetId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
-          categories: categories.join(','),
+          categories: currentCategories.join(',')
         }),
       });
+
+      console.log("Response status:", response.status); // Debug log
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText); // Debug log
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.error || "Failed to update categories");
+        } catch (parseError) {
+          throw new Error(`Server error: ${errorText || response.statusText}`);
+        }
+      }
+      
+      const responseData = await response.json();
+      console.log("Success response:", responseData); // Debug log
       
       return toast.success("Category added!");
     } catch (e) {
-      throw new Error("There was a problem adding the category.");
+      console.error("Error adding category:", e);
+      return toast.error(e.message || "There was a problem adding the category.");
     }
   }
 
   if (_action === "deleteCategory") {
     try {
-      const budget = await getAllMatchingItems({
+      const budgets = await getAllMatchingItems({
         category: "budgets",
         key: "id",
         value: values.budgetId,
-      })[0];
+      });
       
-      const categories = budget.categories.split(',')
-        .filter(cat => cat.length > 0)
-        .filter(cat => cat !== values.categoryToDelete);
+      if (!budgets || budgets.length === 0) {
+        throw new Error("Budget not found");
+      }
+
+      const budget = budgets[0];
+      console.log("Current budget:", budget); // Debug log
       
-      // Update budget with new categories
-      await fetch(`/api/budgets/${values.budgetId}`, {
+      if (!budget.categories) {
+        throw new Error("No categories found for this budget");
+      }
+
+      // Convert comma-separated string to array, filter, then back to string
+      const currentCategories = budget.categories.split(',').filter(cat => cat.length > 0);
+      const updatedCategories = currentCategories.filter(cat => cat !== values.categoryToDelete);
+      console.log("Updated categories:", updatedCategories); // Debug log
+      
+      const response = await fetch(`/api/budgets/${values.budgetId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
-          categories: categories.join(','),
+          categories: updatedCategories.join(',')
         }),
       });
+
+      console.log("Response status:", response.status); // Debug log
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText); // Debug log
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.error || "Failed to update categories");
+        } catch (parseError) {
+          throw new Error(`Server error: ${errorText || response.statusText}`);
+        }
+      }
+      
+      const responseData = await response.json();
+      console.log("Success response:", responseData); // Debug log
       
       return toast.success("Category deleted!");
     } catch (e) {
-      throw new Error("There was a problem deleting the category.");
+      console.error("Error deleting category:", e);
+      return toast.error(e.message || "There was a problem deleting the category.");
     }
   }
 
   if (_action === "editCategory") {
     try {
-      const budget = await getAllMatchingItems({
+      const budgets = await getAllMatchingItems({
         category: "budgets",
         key: "id",
         value: values.budgetId,
-      })[0];
+      });
       
-      const categories = budget.categories.split(',').filter(cat => cat.length > 0);
+      if (!budgets || budgets.length === 0) {
+        throw new Error("Budget not found");
+      }
+
+      const budget = budgets[0];
+      console.log("Current budget:", budget); // Debug log
       
-      if (categories.includes(values.newCategory)) {
+      if (!budget.categories) {
+        throw new Error("No categories found for this budget");
+      }
+
+      // Convert comma-separated string to array
+      const currentCategories = budget.categories.split(',').filter(cat => cat.length > 0);
+      
+      if (currentCategories.includes(values.newCategory)) {
         return toast.error("This category already exists!");
       }
 
-      const updatedCategories = categories.map(cat => 
+      const updatedCategories = currentCategories.map(cat => 
         cat === values.oldCategory ? values.newCategory : cat
       );
+      console.log("Updated categories:", updatedCategories); // Debug log
 
-      // Update budget with new categories
-      await fetch(`/api/budgets/${values.budgetId}`, {
+      const response = await fetch(`/api/budgets/${values.budgetId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
-          categories: updatedCategories.join(','),
+          categories: updatedCategories.join(',')
         }),
       });
+
+      console.log("Response status:", response.status); // Debug log
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText); // Debug log
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.error || "Failed to update categories");
+        } catch (parseError) {
+          throw new Error(`Server error: ${errorText || response.statusText}`);
+        }
+      }
+
+      const responseData = await response.json();
+      console.log("Success response:", responseData); // Debug log
 
       // Update all expenses with the old category
       const expenses = await getAllMatchingItems({
@@ -171,21 +255,27 @@ export async function budgetAction({ request }) {
 
       for (const expense of expenses) {
         if (expense.category === values.oldCategory) {
-          await fetch(`/api/expenses/${expense.id}`, {
+          const expenseResponse = await fetch(`/api/expenses/${expense.id}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
+              'Accept': 'application/json'
             },
             body: JSON.stringify({
               category: values.newCategory,
             }),
           });
+
+          if (!expenseResponse.ok) {
+            console.error(`Failed to update expense ${expense.id}`);
+          }
         }
       }
 
       return toast.success("Category updated!");
     } catch (e) {
-      throw new Error("There was a problem updating the category.");
+      console.error("Error updating category:", e);
+      return toast.error(e.message || "There was a problem updating the category.");
     }
   }
 }

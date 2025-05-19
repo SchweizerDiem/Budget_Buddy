@@ -38,12 +38,14 @@ const CategoryManager = ({ budget }) => {
     <div className="categories-wrapper">
       <h3>Store Categories</h3>
       <div className="categories-list">
-        {budget.categories.map((category) => (
+        {budget.categories?.map((category) => (
           <div key={category} className="category-item">
             {editingCategory === category ? (
               <fetcher.Form 
                 onSubmit={(e) => handleSubmit(e, "editCategory")}
                 className="category-edit-form"
+                method="post"
+                action={`/budget/${budget.id}`}
               >
                 <input
                   type="text"
@@ -84,6 +86,8 @@ const CategoryManager = ({ budget }) => {
                   <fetcher.Form 
                     onSubmit={(e) => handleSubmit(e, "deleteCategory", category)}
                     className="category-delete-form"
+                    method="post"
+                    action={`/budget/${budget.id}`}
                   >
                     <button type="submit" className="btn btn--warning">
                       <TrashIcon width={20} />
@@ -99,6 +103,8 @@ const CategoryManager = ({ budget }) => {
         <fetcher.Form 
           onSubmit={(e) => handleSubmit(e, "addCategory")}
           className="category-add-form"
+          method="post"
+          action={`/budget/${budget.id}`}
         >
           <input
             type="text"
