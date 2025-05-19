@@ -11,6 +11,10 @@ import Table from "../components/Table";
 import CategoryManager from "../components/CategoryManager";
 import MonthSelector from "../components/MonthSelector";
 import MonthlyStats from "../components/MonthlyStats";
+import StoreStats from "../components/StoreStats";
+
+// styles
+import "../styles/StoreStats.css";
 
 // helpers
 import { createExpense, deleteItem, getAllMatchingItems } from "../helpers";
@@ -191,6 +195,8 @@ const BudgetPage = () => {
   const { budget, expenses } = useLoaderData();
   const [filteredExpenses, setFilteredExpenses] = useState(expenses);
 
+  console.log('BudgetPage expenses:', expenses);
+
   const handleMonthChange = useCallback((selectedMonth) => {
     const [year, month] = selectedMonth.split('-');
     const filtered = expenses.filter((expense) => {
@@ -215,16 +221,19 @@ const BudgetPage = () => {
       </h1>
       <div className="flex-lg">
         <BudgetItem budget={budget} showDelete={true} />
-        <AddExpenseForm budgets={[budget]} />
+        <CategoryManager budget={budget} />
       </div>
-      <CategoryManager budget={budget} />
-      {expenses && expenses.length > 0 && (
+      <div className="flex-lg">
+        <MonthSelector onMonthChange={handleMonthChange} />
+      </div>
+      <StoreStats expenses={expenses} />
+      <MonthlyStats expenses={filteredExpenses} />
+      <AddExpenseForm budgets={[budget]} />
+      {filteredExpenses && filteredExpenses.length > 0 && (
         <div className="grid-md">
           <h2>
             <span className="accent">{budget.name}</span> Expenses
           </h2>
-          <MonthSelector onMonthChange={handleMonthChange} />
-          <MonthlyStats expenses={filteredExpenses} />
           <Table expenses={filteredExpenses} showBudget={false} />
         </div>
       )}
