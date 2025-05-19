@@ -226,7 +226,7 @@ const BudgetPage = () => {
       <div className="flex-lg">
         <MonthSelector onMonthChange={handleMonthChange} />
       </div>
-      <StoreStats expenses={expenses} />
+      <StoreStats expenses={filteredExpenses} />
       <MonthlyStats expenses={filteredExpenses} />
       <AddExpenseForm budgets={[budget]} />
       {filteredExpenses && filteredExpenses.length > 0 && (

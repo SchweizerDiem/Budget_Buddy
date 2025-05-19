@@ -31,14 +31,21 @@ const StoreStats = ({ expenses }) => {
   const [monthlyData, setMonthlyData] = useState(null);
   const [categoryData, setCategoryData] = useState(null);
   const [trendData, setTrendData] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null);
 
   useEffect(() => {
     if (!expenses || expenses.length === 0) {
       setMonthlyData(null);
       setCategoryData(null);
       setTrendData(null);
+      setSelectedMonth(null);
       return;
     }
+
+    // Get the month from the first expense (they should all be from the same month)
+    const firstExpense = expenses[0];
+    const date = new Date(firstExpense.createdAt);
+    setSelectedMonth(date.toLocaleDateString('default', { month: 'long', year: 'numeric' }));
 
     // Process data for monthly comparison
     const monthlyComparison = processMonthlyData(expenses);
@@ -54,35 +61,24 @@ const StoreStats = ({ expenses }) => {
   }, [expenses]);
 
   const processMonthlyData = (expenses) => {
-    const monthlyTotals = {
-      income: {},
-      expense: {},
+    const totals = {
+      income: 0,
+      expense: 0,
     };
 
     expenses.forEach((expense) => {
-      const date = new Date(expense.createdAt);
-      const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const amount = Math.abs(expense.amount);
-
       if (expense.type === 'income') {
-        monthlyTotals.income[monthYear] = (monthlyTotals.income[monthYear] || 0) + amount;
+        totals.income += amount;
       } else {
-        monthlyTotals.expense[monthYear] = (monthlyTotals.expense[monthYear] || 0) + amount;
+        totals.expense += amount;
       }
     });
 
-    const months = [...new Set([
-      ...Object.keys(monthlyTotals.income),
-      ...Object.keys(monthlyTotals.expense),
-    ])].sort();
-
     return {
-      labels: months.map(month => {
-        const [year, monthNum] = month.split('-');
-        return new Date(year, monthNum - 1).toLocaleDateString('default', { month: 'short', year: 'numeric' });
-      }),
-      income: months.map(month => monthlyTotals.income[month] || 0),
-      expense: months.map(month => monthlyTotals.expense[month] || 0),
+      labels: ['Income', 'Expenses'],
+      income: [totals.income, 0],
+      expense: [0, totals.expense],
     };
   };
 
@@ -113,7 +109,7 @@ const StoreStats = ({ expenses }) => {
 
     expenses.forEach((expense) => {
       const date = new Date(expense.createdAt);
-      const day = date.toISOString().split('T')[0];
+      const day = date.getDate();
       const amount = Math.abs(expense.amount);
 
       if (expense.type === 'income') {
@@ -126,10 +122,10 @@ const StoreStats = ({ expenses }) => {
     const days = [...new Set([
       ...Object.keys(dailyTotals.income),
       ...Object.keys(dailyTotals.expense),
-    ])].sort();
+    ])].sort((a, b) => parseInt(a) - parseInt(b));
 
     return {
-      labels: days.map(day => new Date(day).toLocaleDateString('default', { month: 'short', day: 'numeric' })),
+      labels: days.map(day => `Day ${day}`),
       income: days.map(day => dailyTotals.income[day] || 0),
       expense: days.map(day => dailyTotals.expense[day] || 0),
     };
@@ -149,12 +145,6 @@ const StoreStats = ({ expenses }) => {
   if (!monthlyData || !categoryData || !trendData) {
     return null;
   }
-
-  console.log('Rendering charts with data:', {
-    monthlyData,
-    categoryData,
-    trendData
-  });
 
   const monthlyChartData = {
     labels: monthlyData.labels,
@@ -232,7 +222,7 @@ const StoreStats = ({ expenses }) => {
       },
       title: {
         display: true,
-        text: 'Monthly Income vs Expenses',
+        text: `Income vs Expenses for ${selectedMonth}`,
       },
     },
   };
@@ -245,7 +235,7 @@ const StoreStats = ({ expenses }) => {
       },
       title: {
         display: true,
-        text: 'Expense Distribution by Category',
+        text: `Expense Distribution for ${selectedMonth}`,
       },
     },
   };
@@ -258,7 +248,7 @@ const StoreStats = ({ expenses }) => {
       },
       title: {
         display: true,
-        text: 'Income/Expense Trend',
+        text: `Daily Income/Expense Trend for ${selectedMonth}`,
       },
     },
     scales: {
