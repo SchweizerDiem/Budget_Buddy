@@ -4,6 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Contexts
+import { AuthProvider } from "./contexts/AuthContext";
+
 // Layouts
 import Main, { mainLoader } from "./layouts/Main";
 
@@ -11,6 +14,9 @@ import Main, { mainLoader } from "./layouts/Main";
 import { logoutAction } from "./actions/logout";
 import { deleteBudget } from "./actions/deleteBudget";
 import { categoryAction } from "./actions/categoryActions";
+
+// Components
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Routes
 import Dashboard, { dashboardAction, dashboardLoader } from "./pages/Dashboard";
@@ -20,6 +26,8 @@ import ExpensesPage, {
   expensesAction,
   expensesLoader,
 } from "./pages/ExpensesPage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const router = createBrowserRouter([
   {
@@ -30,14 +38,22 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
         loader: dashboardLoader,
         action: dashboardAction,
         errorElement: <Error />,
       },
       {
         path: "budget/:id",
-        element: <BudgetPage />,
+        element: (
+          <ProtectedRoute>
+            <BudgetPage />
+          </ProtectedRoute>
+        ),
         loader: budgetLoader,
         action: categoryAction,
         errorElement: <Error />,
@@ -50,10 +66,22 @@ const router = createBrowserRouter([
       },
       {
         path: "expenses",
-        element: <ExpensesPage />,
+        element: (
+          <ProtectedRoute>
+            <ExpensesPage />
+          </ProtectedRoute>
+        ),
         loader: expensesLoader,
         action: expensesAction,
         errorElement: <Error />,
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "register",
+        element: <Register />,
       },
       {
         path: "logout",
@@ -65,10 +93,12 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div className="App">
-      <RouterProvider router={router} />
-      <ToastContainer />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <RouterProvider router={router} />
+        <ToastContainer />
+      </div>
+    </AuthProvider>
   );
 }
 

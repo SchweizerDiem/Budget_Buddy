@@ -1,23 +1,63 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 import uuid
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-CORS(app)
+
+# Simple CORS configuration
+CORS(app, 
+     origins=["http://localhost:5173"],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"])
+
+app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this to a secure secret key in production
 
 # Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///budget_buddy.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
+
+# Handle OPTIONS requests explicitly
+@app.route('/api/<path:path>', methods=['OPTIONS'])
+def handle_options(path):
+    response = jsonify({'status': 'ok'})
+    return response
+
 # Models
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     budgets = db.relationship('Budget', backref='user', lazy=True, cascade='all, delete-orphan')
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Budget(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -207,6 +247,79 @@ def update_expense(expense_id):
         'budgetId': expense.budget_id,
         'createdAt': expense.created_at.timestamp() * 1000
     })
+
+# Authentication routes
+@app.route('/api/register', methods=['POST'])
+def register():
+    try:
+        data = request.json
+        print("Received registration data:", data)  # Debug log
+        
+        if not data or not all(k in data for k in ['name', 'email', 'password']):
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        if User.query.filter_by(email=data['email']).first():
+            return jsonify({'error': 'Email already registered'}), 400
+        
+        user = User(
+            name=data['name'],
+            email=data['email']
+        )
+        user.set_password(data['password'])
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        login_user(user)
+        return jsonify({
+            'id': user.id,
+            'name': user.name,
+            'email': user.email
+        })
+    except Exception as e:
+        print("Registration error:", str(e))  # Debug log
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        print("Received login data:", data)  # Debug log
+        
+        if not data or not all(k in data for k in ['email', 'password']):
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        user = User.query.filter_by(email=data['email']).first()
+        
+        if user and user.check_password(data['password']):
+            login_user(user)
+            return jsonify({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email
+            })
+        
+        return jsonify({'error': 'Invalid email or password'}), 401
+    except Exception as e:
+        print("Login error:", str(e))  # Debug log
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return '', 204
+
+@app.route('/api/check-auth', methods=['GET'])
+def check_auth():
+    if current_user.is_authenticated:
+        return jsonify({
+            'id': current_user.id,
+            'name': current_user.name,
+            'email': current_user.email
+        })
+    return jsonify({'error': 'Not authenticated'}), 401
 
 if __name__ == '__main__':
     with app.app_context():
