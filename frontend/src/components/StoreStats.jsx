@@ -102,32 +102,51 @@ const StoreStats = ({ expenses }) => {
   };
 
   const processTrendData = (expenses) => {
-    const dailyTotals = {
-      income: {},
-      expense: {},
-    };
+    // Sort expenses by date
+    const sortedExpenses = [...expenses].sort((a, b) => 
+      new Date(a.createdAt) - new Date(b.createdAt)
+    );
 
-    expenses.forEach((expense) => {
+    // Create a map of dates to track running totals
+    const timelineData = {};
+    let runningIncome = 0;
+    let runningExpense = 0;
+
+    sortedExpenses.forEach((expense) => {
       const date = new Date(expense.createdAt);
-      const day = date.getDate();
+      const dateKey = date.toLocaleDateString();
       const amount = Math.abs(expense.amount);
 
+      if (!timelineData[dateKey]) {
+        timelineData[dateKey] = {
+          date: dateKey,
+          income: 0,
+          expense: 0,
+          runningIncome: 0,
+          runningExpense: 0
+        };
+      }
+
       if (expense.type === 'income') {
-        dailyTotals.income[day] = (dailyTotals.income[day] || 0) + amount;
+        timelineData[dateKey].income += amount;
+        runningIncome += amount;
+        timelineData[dateKey].runningIncome = runningIncome;
       } else {
-        dailyTotals.expense[day] = (dailyTotals.expense[day] || 0) + amount;
+        timelineData[dateKey].expense += amount;
+        runningExpense += amount;
+        timelineData[dateKey].runningExpense = runningExpense;
       }
     });
 
-    const days = [...new Set([
-      ...Object.keys(dailyTotals.income),
-      ...Object.keys(dailyTotals.expense),
-    ])].sort((a, b) => parseInt(a) - parseInt(b));
+    // Convert to arrays for the chart
+    const data = Object.values(timelineData);
 
     return {
-      labels: days.map(day => `Day ${day}`),
-      income: days.map(day => dailyTotals.income[day] || 0),
-      expense: days.map(day => dailyTotals.expense[day] || 0),
+      labels: data.map(d => d.date),
+      income: data.map(d => d.income),
+      expense: data.map(d => d.expense),
+      runningIncome: data.map(d => d.runningIncome),
+      runningExpense: data.map(d => d.runningExpense)
     };
   };
 
@@ -196,21 +215,41 @@ const StoreStats = ({ expenses }) => {
     labels: trendData.labels,
     datasets: [
       {
-        label: 'Income',
+        label: 'Daily Income',
         data: trendData.income,
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         tension: 0.4,
         fill: true,
+        yAxisID: 'y',
       },
       {
-        label: 'Expenses',
+        label: 'Daily Expenses',
         data: trendData.expense,
         borderColor: 'rgba(255, 99, 132, 1)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         tension: 0.4,
         fill: true,
+        yAxisID: 'y',
       },
+      {
+        label: 'Cumulative Income',
+        data: trendData.runningIncome,
+        borderColor: 'rgba(75, 192, 192, 0.8)',
+        backgroundColor: 'transparent',
+        borderDash: [5, 5],
+        tension: 0.4,
+        yAxisID: 'y1',
+      },
+      {
+        label: 'Cumulative Expenses',
+        data: trendData.runningExpense,
+        borderColor: 'rgba(255, 99, 132, 0.8)',
+        backgroundColor: 'transparent',
+        borderDash: [5, 5],
+        tension: 0.4,
+        yAxisID: 'y1',
+      }
     ],
   };
 
@@ -242,18 +281,54 @@ const StoreStats = ({ expenses }) => {
 
   const trendOptions = {
     responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
     plugins: {
       legend: {
         position: 'top',
       },
       title: {
         display: true,
-        text: `Daily Income/Expense Trend for ${selectedMonth}`,
+        text: `Income/Expense Timeline for ${selectedMonth}`,
       },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += formatCurrency(context.parsed.y);
+            }
+            return label;
+          }
+        }
+      }
     },
     scales: {
       y: {
-        beginAtZero: true,
+        type: 'linear',
+        display: true,
+        position: 'left',
+        title: {
+          display: true,
+          text: 'Daily Amount'
+        }
+      },
+      y1: {
+        type: 'linear',
+        display: true,
+        position: 'right',
+        title: {
+          display: true,
+          text: 'Cumulative Amount'
+        },
+        grid: {
+          drawOnChartArea: false,
+        },
       },
     },
   };
