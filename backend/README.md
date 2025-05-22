@@ -1,49 +1,83 @@
 # Budget Buddy Backend
 
-This is the Python backend for Budget Buddy, providing a REST API for managing budgets and expenses.
+The backend of Budget Buddy is built using Flask and provides a RESTful API for the frontend application.
+
+## Features
+
+- RESTful API endpoints for expense management
+- SQLite database for data persistence
+- User authentication and authorization
+- Data validation and error handling
+- Sample data generation for testing
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/logout` - Logout user
+
+### Expenses
+- `GET /api/expenses` - Get all expenses
+- `POST /api/expenses` - Create new expense
+- `PUT /api/expenses/<id>` - Update expense
+- `DELETE /api/expenses/<id>` - Delete expense
+
+### Categories
+- `GET /api/categories` - Get all categories
+- `POST /api/categories` - Create new category
+- `PUT /api/categories/<id>` - Update category
+- `DELETE /api/categories/<id>` - Delete category
 
 ## Setup
 
-1. Create a Python virtual environment:
+1. Create and activate virtual environment:
 ```bash
-python3 -m venv venv
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-2. Activate the virtual environment:
-```bash
-source venv/bin/activate  # On Linux/Mac
-# OR
-.\venv\Scripts\activate  # On Windows
-```
-
-3. Install dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Run the application:
+3. Initialize the database:
 ```bash
 python app.py
 ```
 
-The server will start at `http://localhost:5000`
+## Development
 
-## API Endpoints
+The backend uses the following main dependencies:
+- Flask
+- Flask-SQLAlchemy
+- Flask-Login
+- Flask-CORS
 
-### Users
-- POST `/api/user` - Create a new user
-- GET `/api/user/<user_id>` - Get user details
+## Testing
 
-### Budgets
-- POST `/api/budgets` - Create a new budget
-- GET `/api/budgets/<user_id>` - Get all budgets for a user
-- DELETE `/api/budgets/<budget_id>` - Delete a budget
+To run the sample data generation:
+```bash
+python sample_data.py
+```
 
-### Expenses
-- POST `/api/expenses` - Create a new expense
-- GET `/api/expenses/<budget_id>` - Get all expenses for a budget
-- DELETE `/api/expenses/<expense_id>` - Delete an expense
+## Environment Variables
 
-## Database
+Create a `.env` file in the backend directory with the following variables:
+```
+FLASK_APP=app.py
+FLASK_ENV=development
+SECRET_KEY=your-secret-key
+```
 
-The application uses SQLite as the database, stored in `budget_buddy.db`. The database will be automatically created when you first run the application. 
+## Error Handling
+
+The API uses standard HTTP status codes:
+- 200: Success
+- 201: Created
+- 400: Bad Request
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Not Found
+- 500: Internal Server Error 
