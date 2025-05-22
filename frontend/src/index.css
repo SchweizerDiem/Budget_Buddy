@@ -807,3 +807,38 @@ table a {
 .income-text {
   color: hsl(var(--accent));
 }
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.edit-input {
+  width: 100%;
+  padding: var(--space-xs);
+  border: 2px solid hsl(var(--accent));
+  border-radius: var(--round-sm);
+  font-size: var(--fs-400);
+  background: hsl(var(--bkg));
+  color: hsl(var(--text));
+}
+
+.edit-buttons {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.btn--icon {
+  padding: var(--space-xs);
+  background: none;
+  border: none;
+  color: hsl(var(--accent));
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.btn--icon:hover {
+  color: hsl(var(--accent) / 0.8);
+}
