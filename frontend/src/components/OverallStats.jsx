@@ -219,8 +219,104 @@ const OverallStats = ({ budgets, expenses }) => {
     ]
   };
 
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
+      },
+      title: {
+        display: true,
+        text: 'Budget Allocation vs Spending',
+        font: {
+          size: 14
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return formatCurrency(value);
+          }
+        }
+      }
+    }
+  };
+
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
+      }
+    }
+  };
+
+  const trendOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += formatCurrency(context.parsed.y);
+            }
+            return label;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return formatCurrency(value);
+          }
+        }
+      }
+    }
+  };
+
   return (
-    <div className="stats-grid">
+    <div className="stats-grid main-page">
       <div className="stats-card">
         <h3>Overall Financial Summary</h3>
         <div className="stats-summary">
@@ -243,70 +339,30 @@ const OverallStats = ({ budgets, expenses }) => {
 
       <div className="stats-card">
         <h3>Budget Utilization</h3>
-        <Bar 
-          data={budgetUtilizationData}
-          options={{
-            responsive: true,
-            plugins: {
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: true,
-                text: 'Budget Allocation vs Spending'
-              }
-            }
-          }}
-        />
+        <div style={{ height: '300px' }}>
+          <Bar data={budgetUtilizationData} options={chartOptions} />
+        </div>
       </div>
 
       <div className="stats-card">
         <h3>Expense Categories</h3>
         <div className="pie-chart-container">
-          <Pie 
-            data={categoryData}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'right',
-                }
-              }
-            }}
-          />
+          <Pie data={categoryData} options={pieOptions} />
         </div>
       </div>
 
       <div className="stats-card">
         <h3>Income Categories</h3>
         <div className="pie-chart-container">
-          <Pie 
-            data={incomeData}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'right',
-                }
-              }
-            }}
-          />
+          <Pie data={incomeData} options={pieOptions} />
         </div>
       </div>
 
       <div className="stats-card">
         <h3>Monthly Income/Expense Trend</h3>
-        <Line 
-          data={monthlyTrendData}
-          options={{
-            responsive: true,
-            plugins: {
-              legend: {
-                position: 'top',
-              }
-            }
-          }}
-        />
+        <div style={{ height: '300px' }}>
+          <Line data={monthlyTrendData} options={trendOptions} />
+        </div>
       </div>
 
       <div className="stats-card">

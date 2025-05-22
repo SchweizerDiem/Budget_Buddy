@@ -255,32 +255,65 @@ const StoreStats = ({ expenses }) => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
       },
       title: {
         display: true,
         text: `Income vs Expenses for ${selectedMonth}`,
-      },
+        font: {
+          size: 14
+        }
+      }
     },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return formatCurrency(value);
+          }
+        }
+      }
+    }
   };
 
   const pieOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'right',
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
       },
       title: {
         display: true,
         text: `Expense Distribution for ${selectedMonth}`,
-      },
-    },
+        font: {
+          size: 14
+        }
+      }
+    }
   };
 
   const trendOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     interaction: {
       mode: 'index',
       intersect: false,
@@ -288,10 +321,20 @@ const StoreStats = ({ expenses }) => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
       },
       title: {
         display: true,
         text: `Income/Expense Timeline for ${selectedMonth}`,
+        font: {
+          size: 14
+        }
       },
       tooltip: {
         callbacks: {
@@ -316,6 +359,11 @@ const StoreStats = ({ expenses }) => {
         title: {
           display: true,
           text: 'Daily Amount'
+        },
+        ticks: {
+          callback: function(value) {
+            return formatCurrency(value);
+          }
         }
       },
       y1: {
@@ -325,6 +373,11 @@ const StoreStats = ({ expenses }) => {
         title: {
           display: true,
           text: 'Cumulative Amount'
+        },
+        ticks: {
+          callback: function(value) {
+            return formatCurrency(value);
+          }
         },
         grid: {
           drawOnChartArea: false,
@@ -337,7 +390,9 @@ const StoreStats = ({ expenses }) => {
     <div className="stats-grid">
       <div className="stats-card">
         <h3>Monthly Comparison</h3>
-        <Bar data={monthlyChartData} options={chartOptions} />
+        <div style={{ height: '300px' }}>
+          <Bar data={monthlyChartData} options={chartOptions} />
+        </div>
       </div>
       
       <div className="stats-card">
@@ -352,7 +407,9 @@ const StoreStats = ({ expenses }) => {
       
       <div className="stats-card">
         <h3>Income/Expense Trend</h3>
-        <Line data={trendChartData} options={trendOptions} />
+        <div style={{ height: '300px' }}>
+          <Line data={trendChartData} options={trendOptions} />
+        </div>
       </div>
     </div>
   );
