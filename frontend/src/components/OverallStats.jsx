@@ -36,6 +36,7 @@ const OverallStats = ({ budgets, expenses }) => {
     netBalance: 0,
     budgetUtilization: [],
     categoryDistribution: {},
+    incomeDistribution: {},
     monthlyTrend: {},
     topExpenses: [],
     topIncomes: []
@@ -49,6 +50,7 @@ const OverallStats = ({ budgets, expenses }) => {
         netBalance: 0,
         budgetUtilization: [],
         categoryDistribution: {},
+        incomeDistribution: {},
         monthlyTrend: {},
         topExpenses: [],
         topIncomes: []
@@ -69,6 +71,12 @@ const OverallStats = ({ budgets, expenses }) => {
           newStats.totalIncome += amount;
           newStats.monthlyTrend[monthKey].income += amount;
           newStats.topIncomes.push({ ...expense, amount });
+          
+          // Track income distribution
+          if (!newStats.incomeDistribution[expense.category]) {
+            newStats.incomeDistribution[expense.category] = 0;
+          }
+          newStats.incomeDistribution[expense.category] += amount;
         } else {
           newStats.totalExpenses += amount;
           newStats.monthlyTrend[monthKey].expenses += amount;
@@ -165,6 +173,30 @@ const OverallStats = ({ budgets, expenses }) => {
     }]
   };
 
+  const incomeData = {
+    labels: Object.keys(stats.incomeDistribution),
+    datasets: [{
+      data: Object.values(stats.incomeDistribution),
+      backgroundColor: [
+        'rgba(75, 192, 192, 0.6)',
+        'rgba(54, 162, 235, 0.6)',
+        'rgba(255, 206, 86, 0.6)',
+        'rgba(75, 192, 192, 0.6)',
+        'rgba(153, 102, 255, 0.6)',
+        'rgba(255, 159, 64, 0.6)',
+      ],
+      borderColor: [
+        'rgba(75, 192, 192, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)',
+      ],
+      borderWidth: 1,
+    }]
+  };
+
   const monthlyTrendData = {
     labels: Object.keys(stats.monthlyTrend),
     datasets: [
@@ -233,6 +265,23 @@ const OverallStats = ({ budgets, expenses }) => {
         <div className="pie-chart-container">
           <Pie 
             data={categoryData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'right',
+                }
+              }
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="stats-card">
+        <h3>Income Categories</h3>
+        <div className="pie-chart-container">
+          <Pie 
+            data={incomeData}
             options={{
               responsive: true,
               plugins: {
