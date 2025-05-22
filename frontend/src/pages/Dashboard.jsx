@@ -12,6 +12,7 @@ import AddExpenseForm from "../components/AddExpenseForm";
 import BudgetItem from "../components/BudgetItem";
 import Table from "../components/Table";
 import LoadingSpinner from "../components/LoadingSpinner";
+import OverallStats from "../components/OverallStats";
 
 //  helper functions
 import {
@@ -165,6 +166,12 @@ const Dashboard = () => {
                   <AddBudgetForm />
                   <AddExpenseForm budgets={budgets} />
                 </div>
+                
+                {/* Add OverallStats component */}
+                {expenses && expenses.length > 0 && (
+                  <OverallStats budgets={budgets} expenses={expenses} />
+                )}
+
                 <h2>Existing Budgets</h2>
                 <div className="budgets">
                   {budgets.map((budget) => (
