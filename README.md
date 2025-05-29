@@ -1,164 +1,272 @@
-# Budget Buddy
+# Budget Buddy - Sistema de Gestão Financeira
 
-Budget Buddy is a comprehensive personal finance management application that helps users track their income and expenses, visualize their spending patterns, and manage their budget effectively.
+Budget Buddy é um sistema completo de gestão financeira desenvolvido para ajudar usuários a gerenciar suas finanças pessoais e de negócios de forma eficiente e intuitiva.
 
-## Table of Contents
-- [Overview](#overview)
-- [System Architecture](#system-architecture)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Application](#running-the-application)
-- [Usage Guide](#usage-guide)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
+## Tecnologias Utilizadas
 
-## Overview
+### Frontend
+- **React + Vite**: Framework JavaScript moderno para construção da interface do usuário
+- **Chart.js**: Biblioteca para criação de gráficos interativos e visualizações de dados
+- **React Router**: Gerenciamento de rotas e navegação
+- **CSS Modules**: Estilização modular e responsiva
 
-Budget Buddy is a full-stack web application that provides users with tools to:
-- Track daily income and expenses
-- Categorize transactions for better organization
-- View spending patterns through interactive charts
-- Set and monitor monthly budgets
-- Manage multiple expense categories
-- Get insights into their financial habits
+### Backend
+- **Flask**: Framework Python para construção da API REST
+- **SQLAlchemy**: ORM para interação com o banco de dados
+- **SQLite**: Banco de dados relacional para armazenamento persistente
+- **Flask-CORS**: Middleware para permitir requisições cross-origin
 
-## System Architecture
+## Arquitetura do Sistema
 
-The application follows a client-server architecture:
+### Frontend
+O frontend é construído como uma Single Page Application (SPA) com os seguintes componentes principais:
 
-### Frontend (React + Vite)
-- Single Page Application (SPA)
-- Component-based architecture
-- Real-time data visualization
-- Responsive design for all devices
+1. **Dashboard**: Visão geral das finanças
+   - Resumo financeiro
+   - Gráficos de gastos e receitas
+   - Lista de orçamentos
+   - Transações recentes
 
-### Backend (Flask)
-- RESTful API design
-- SQLite database for data persistence
-- JWT-based authentication
-- CORS enabled for frontend communication
+2. **Componentes de Visualização**
+   - `OverallStats`: Estatísticas gerais com gráficos de barras e pizza
+   - `StoreStats`: Estatísticas específicas por loja
+   - `MonthlyStats`: Análise mensal de transações
+   - `SimpleCharts`: Visualizações básicas de transações diárias
 
-## Features
+3. **Componentes de Gestão**
+   - `AddBudgetForm`: Criação de novos orçamentos
+   - `AddExpenseForm`: Registro de despesas e receitas
+   - `Table`: Exibição de transações em formato tabular
+   - `CategoryManager`: Gerenciamento de categorias
 
-- Track income and expenses
-- Categorize transactions
-- Visualize spending patterns with interactive charts
-- Monthly budget tracking
-- Responsive design for all devices
-- Secure user authentication
-- Real-time data updates
+### Backend
+O backend segue uma arquitetura RESTful com os seguintes elementos:
 
-## Project Structure
+1. **Modelos de Dados**
+   ```python
+   class User:
+       id: UUID
+       name: String
+       created_at: DateTime
+       budgets: Relationship[Budget]
 
-The project is divided into two main components:
+   class Budget:
+       id: UUID
+       name: String
+       amount: Float
+       color: String
+       categories: String
+       user_id: UUID
+       expenses: Relationship[Expense]
 
-- `frontend/`: React-based web application
-  - `src/components/`: React components
-  - `src/helpers/`: Utility functions
-  - `public/`: Static assets
-- `backend/`: Flask-based REST API server
-  - `app.py`: Main application file
-  - `requirements.txt`: Python dependencies
-  - `instance/`: Database files
+   class Expense:
+       id: UUID
+       name: String
+       amount: Float
+       type: String
+       category: String
+       created_at: DateTime
+       budget_id: UUID
+   ```
 
-## Getting Started
+2. **Endpoints da API**
+   - `/api/user`: Gerenciamento de usuários
+   - `/api/budgets`: Operações com orçamentos
+   - `/api/expenses`: Gestão de despesas e receitas
 
-### Prerequisites
+## Estrutura do Banco de Dados
 
-- Python 3.8 or higher
-- Node.js 14 or higher
-- npm or yarn
+### Tabelas e Relacionamentos
 
-### Installation
+1. **Users**
+   - Chave primária: `id` (UUID)
+   - Campos: `name`, `created_at`
+   - Relacionamento 1:N com Budgets
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Budget_Buddy.git
-cd Budget_Buddy
-```
+2. **Budgets**
+   - Chave primária: `id` (UUID)
+   - Chave estrangeira: `user_id` → Users
+   - Campos: `name`, `amount`, `color`, `categories`
+   - Relacionamento 1:N com Expenses
 
-2. Set up the backend:
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+3. **Expenses**
+   - Chave primária: `id` (UUID)
+   - Chave estrangeira: `budget_id` → Budgets
+   - Campos: `name`, `amount`, `type`, `category`, `created_at`
 
-3. Set up the frontend:
-```bash
-cd frontend
-npm install
-```
+## Lógica de Negócio
 
-### Running the Application
+### Gestão de Orçamentos
+1. **Criação de Orçamento**
+   - Definição de nome e valor total
+   - Seleção de categorias
+   - Atribuição de cor para identificação visual
 
-1. Start the backend server:
-```bash
-cd backend
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-python app.py
-```
+2. **Categorização**
+   - Categorias personalizadas por orçamento
+   - Agrupamento de despesas por categoria
+   - Análise de gastos por categoria
 
-2. Start the frontend development server:
-```bash
-cd frontend
-npm run dev
-```
+### Gestão de Transações
+1. **Registro de Despesas**
+   - Nome e valor
+   - Categoria
+   - Data e hora
+   - Orçamento associado
 
-The application will be available at `http://localhost:5173`
+2. **Registro de Receitas**
+   - Mesma estrutura das despesas
+   - Valores positivos vs. negativos
+   - Categorização específica
 
-## Usage Guide
+### Análise e Estatísticas
 
-1. **User Registration/Login**
-   - Create an account or log in to access your dashboard
-   - Secure authentication with JWT tokens
+1. **Cálculos Financeiros**
+   - Total de receitas e despesas
+   - Saldo líquido
+   - Média de transações
+   - Maiores gastos e receitas
 
-2. **Managing Expenses**
-   - Add new expenses with amount, category, and date
-   - Edit or delete existing expenses
-   - View expense history
+2. **Visualizações**
+   - Gráficos de barras para comparação mensal
+   - Gráficos de pizza para distribuição de categorias
+   - Gráficos de linha para tendências temporais
+   - Tabelas para dados detalhados
 
-3. **Category Management**
-   - Create custom expense categories
-   - Assign expenses to categories
-   - View category-wise spending
+3. **Métricas por Loja**
+   - Análise individual de cada estabelecimento
+   - Comparação entre lojas
+   - Tendências de vendas e gastos
 
-4. **Budget Tracking**
-   - Set monthly budgets for categories
-   - Monitor spending against budgets
-   - Receive alerts for budget limits
+## Fluxo de Dados
 
-5. **Data Visualization**
-   - View monthly income vs expenses
-   - Analyze spending patterns
-   - Track category-wise distribution
+1. **Entrada de Dados**
+   - Interface do usuário → API REST
+   - Validação de dados
+   - Persistência no banco de dados
 
-## Development
+2. **Processamento**
+   - Agregação de dados
+   - Cálculos estatísticos
+   - Geração de visualizações
 
-For detailed development guidelines, please refer to:
-- [Frontend Development Guide](frontend/README.md)
-- [Backend Development Guide](backend/README.md)
+3. **Saída**
+   - Renderização de gráficos
+   - Exibição de tabelas
+   - Exportação de relatórios
 
-## Contributing
+## Segurança e Validação
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. **Validação de Dados**
+   - Verificação de tipos
+   - Validação de valores
+   - Sanitização de entradas
 
-## License
+2. **Segurança**
+   - CORS configurado
+   - Validação de usuários
+   - Proteção contra injeção SQL
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Interface do Usuário
 
-## Acknowledgments
+1. **Design Responsivo**
+   - Adaptação para diferentes dispositivos
+   - Layout fluido
+   - Componentes reutilizáveis
 
-- Chart.js for the visualization components
-- React for the frontend framework
-- Flask for the backend framework 
+2. **Componentes Visuais**
+   - Cards informativos
+   - Gráficos interativos
+   - Tabelas ordenáveis
+   - Formulários intuitivos
+
+## Desenvolvimento e Manutenção
+
+1. **Estrutura do Projeto**
+   ```
+   Budget_Buddy/
+   ├── frontend/
+   │   ├── public/
+   │   │   ├── favicon.ico
+   │   │   └── index.html
+   │   ├── src/
+   │   │   ├── components/
+   │   │   │   ├── AddBudgetForm.jsx
+   │   │   │   ├── AddExpenseForm.jsx
+   │   │   │   ├── BudgetItem.jsx
+   │   │   │   ├── CategoryManager.jsx
+   │   │   │   ├── ExpenseItem.jsx
+   │   │   │   ├── Intro.jsx
+   │   │   │   ├── LoadingSpinner.jsx
+   │   │   │   ├── MonthlyStats.jsx
+   │   │   │   ├── OverallStats.jsx
+   │   │   │   ├── SimpleCharts.jsx
+   │   │   │   ├── StoreStats.jsx
+   │   │   │   └── Table.jsx
+   │   │   ├── pages/
+   │   │   │   ├── BudgetPage.jsx
+   │   │   │   ├── Dashboard.jsx
+   │   │   │   └── ErrorPage.jsx
+   │   │   ├── styles/
+   │   │   │   ├── index.css
+   │   │   │   └── StoreStats.css
+   │   │   ├── App.jsx
+   │   │   ├── api.jsx
+   │   │   ├── helpers.js
+   │   │   └── main.jsx
+   │   ├── package.json
+   │   ├── vite.config.js
+   │   └── README.md
+   │
+   └── backend/
+       ├── instance/
+       │   └── budget_buddy.db
+       ├── app.py
+       ├── models.py
+       ├── sample_data.py
+       ├── requirements.txt
+       └── README.md
+   ```
+
+2. **Descrição dos Componentes**
+
+   **Frontend**
+   - `components/`: Componentes React reutilizáveis
+     - `AddBudgetForm.jsx`: Formulário para criar novos orçamentos
+     - `AddExpenseForm.jsx`: Formulário para adicionar despesas/receitas
+     - `BudgetItem.jsx`: Exibição individual de orçamento
+     - `CategoryManager.jsx`: Gerenciamento de categorias
+     - `ExpenseItem.jsx`: Exibição individual de transação
+     - `MonthlyStats.jsx`: Estatísticas mensais
+     - `OverallStats.jsx`: Estatísticas gerais
+     - `StoreStats.jsx`: Estatísticas por loja
+     - `Table.jsx`: Tabela de transações
+
+   - `pages/`: Páginas principais da aplicação
+     - `Dashboard.jsx`: Página inicial com visão geral
+     - `BudgetPage.jsx`: Página de detalhes do orçamento
+     - `ErrorPage.jsx`: Página de erro
+
+   - `styles/`: Arquivos CSS
+     - `index.css`: Estilos globais
+     - `StoreStats.css`: Estilos específicos para estatísticas
+
+   **Backend**
+   - `app.py`: Aplicação principal Flask
+   - `models.py`: Definições dos modelos de dados
+   - `sample_data.py`: Script para gerar dados de exemplo
+   - `requirements.txt`: Dependências Python
+   - `instance/`: Diretório do banco de dados SQLite
+
+3. **Dependências**
+   - Frontend: React, Chart.js, React Router
+   - Backend: Flask, SQLAlchemy, Flask-CORS
+
+4. **Configuração**
+   - Variáveis de ambiente
+   - Configuração do banco de dados
+   - Configuração do servidor
+
+## Conclusão
+
+O Budget Buddy é um sistema robusto e flexível para gestão financeira, oferecendo uma interface intuitiva e recursos avançados de análise de dados. Sua arquitetura modular permite fácil manutenção e expansão de funcionalidades. 

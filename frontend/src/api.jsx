@@ -102,5 +102,5 @@ export const deleteExpense = async (expenseId) => {
     method: 'DELETE',
   });
   if (!response.ok) throw new Error('Failed to delete expense');
-  return true; 
+  return true;
 };

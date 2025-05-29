@@ -40,17 +40,17 @@ export async function dashboardLoader() {
     const user = await getUser(userId);
     const budgets = await getBudgets(userId);
     let allExpenses = [];
-    
+
     // Fetch expenses for each budget
     for (const budget of budgets) {
       const expenses = await getExpenses(budget.id);
       allExpenses = [...allExpenses, ...expenses];
     }
 
-    return { 
+    return {
       userName: user.name,
-      budgets, 
-      expenses: allExpenses 
+      budgets,
+      expenses: allExpenses
     };
   } catch (error) {
     console.error("Error loading dashboard data:", error);
@@ -166,7 +166,7 @@ const Dashboard = () => {
                   <AddBudgetForm />
                   <AddExpenseForm budgets={budgets} />
                 </div>
-                
+
                 {/* Add OverallStats component */}
                 {expenses && expenses.length > 0 && (
                   <OverallStats budgets={budgets} expenses={expenses} />
@@ -186,11 +186,6 @@ const Dashboard = () => {
                         .sort((a, b) => b.createdAt - a.createdAt)
                         .slice(0, 8)}
                     />
-                    {expenses.length > 8 && (
-                      <Link to="expenses" className="btn btn--dark">
-                        View all expenses
-                      </Link>
-                    )}
                   </div>
                 )}
               </div>

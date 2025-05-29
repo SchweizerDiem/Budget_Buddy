@@ -72,9 +72,9 @@ const BudgetItem = ({ budget, showDelete = false }) => {
             />
             <div className="edit-buttons">
               <button type="submit" className="btn btn--dark">Save</button>
-              <button 
-                type="button" 
-                className="btn" 
+              <button
+                type="button"
+                className="btn"
                 onClick={() => {
                   setIsEditing(false);
                   setNewAmount(amount);
@@ -87,8 +87,8 @@ const BudgetItem = ({ budget, showDelete = false }) => {
         ) : (
           <p>
             {formatCurrency(amount)} Budgeted
-            <button 
-              className="btn btn--icon" 
+            <button
+              className="btn btn--icon"
               onClick={() => setIsEditing(true)}
               title="Edit budget amount"
             >
@@ -108,7 +108,7 @@ const BudgetItem = ({ budget, showDelete = false }) => {
             {formatPercentage(spent / amount)}
           </progress>
           <div className="progress-text">
-            <small>{formatCurrency(spent)} spent</small>
+            <small>{formatCurrency(spent)} saved</small>
             <small>{formatCurrency(amount - spent)} remaining</small>
           </div>
         </>
